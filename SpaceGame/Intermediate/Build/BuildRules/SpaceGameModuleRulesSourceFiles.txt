@@ -1,0 +1,3 @@
+C:\Users\NGD_8700_05\Documents\Unreal Projects\SpaceGame\Source\SpaceGame\SpaceGame.Build.cs
+C:\Users\NGD_8700_05\Documents\Unreal Projects\SpaceGame\Source\SpaceGame.Target.cs
+C:\Users\NGD_8700_05\Documents\Unreal Projects\SpaceGame\Source\SpaceGameEditor.Target.cs

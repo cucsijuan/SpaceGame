@@ -1,0 +1,2 @@
+C:\Users\NGD_8700_05\Documents\Unreal Projects\SpaceGame\Intermediate\Build\Win64\UE4Editor\Development\SpaceGame\Definitions.SpaceGame.h
+c:\users\ngd_8700_05\documents\unreal projects\spacegame\source\spacegame\SpaceGame.h
