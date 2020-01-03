@@ -74,15 +74,23 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	// The mass of the car (kg).
+	// The mass of the ship (kg).
 	UPROPERTY(EditAnywhere)
 	float Mass = 1000;
 
-	//Force applied to the car when the throttle is fully down (N).
+	//Force applied to the Ship when the throttle is fully down (N).
 	UPROPERTY(EditAnywhere)
 	float MaxDrivingForce = 10000;
 
-	//Minimum radius of the car turning at full lock (m).
+	//Force applied to the ship when Roll is fully down (N).
+	UPROPERTY(EditAnywhere)
+	float MaxRollForce = 10000;
+
+	//Force applied to the ship when Roll is fully down (N).
+	UPROPERTY(EditAnywhere)
+	float MaxPitchForce = 10000;
+
+	//Minimum radius of the ship turning at full lock (m).
 	UPROPERTY(EditAnywhere)
 	float MinTurningRadius = 10;
 
@@ -90,11 +98,22 @@ private:
 	UPROPERTY(EditAnywhere)
 	float DragCoefficient = 16;
 
+	//Higher means more drag
+	UPROPERTY(EditAnywhere)
+	float RotationDragCoefficient = 16;
+
 	//Higher means more rolling resistance
 	UPROPERTY(EditAnywhere)
 	float RollingResistanceCoefficient = 0.015f;
 
+	UPROPERTY(EditAnywhere)
+	float MaxRollVelocity = 90;
+
 	FVector Velocity = FVector::ZeroVector;
+
+	float RollVelocity;
+
+	float PitchVelocity;
 
 	FGoKartMove LastMove;
 
@@ -111,11 +130,16 @@ private:
 
 	FVector GetAirResistance();
 
+	float GetRotationDrag(float RotationVelocity);
+
 	FVector GetRollingResistance();
+
+	float GetFloatRollingResistance();
 
 	void UpdateLocationFromVelocity(float DeltaTime);
 
 	void ApplyRotation(float DeltaTime, float SteeringThrow);
 	void ApplyPitchRotation(float DeltaTime, float PitchThrow);
 	void ApplyRollRotation(float DeltaTime, float InRollThrow);
+	
 };

@@ -63,10 +63,13 @@ void USpaceMovementComponent::ApplyRotation(float DeltaTime, float SteeringThrow
 
 void USpaceMovementComponent::ApplyPitchRotation(float DeltaTime, float PitchThrow)
 {
-	float DeltaLocation = FVector::DotProduct(GetOwner()->GetActorForwardVector(), Velocity) * DeltaTime;
-	float RotationAngle = DeltaLocation / MinTurningRadius * PitchThrow;
+	float RotationForce = MaxPitchForce * DeltaTime * PitchThrow;
 
-	FQuat RotationDelta(GetOwner()->GetActorRightVector(), RotationAngle);
+	float RotationAcceleration = RotationForce / Mass;
+
+	PitchVelocity += RotationAcceleration * DeltaTime;
+
+	FQuat RotationDelta(GetOwner()->GetActorRightVector(), PitchVelocity);
 
 	Velocity = RotationDelta.RotateVector(Velocity);
 
@@ -83,10 +86,26 @@ void USpaceMovementComponent::ApplyPitchRotation(float DeltaTime, float PitchThr
 
 void USpaceMovementComponent::ApplyRollRotation(float DeltaTime, float InRollThrow)
 {
-	float DeltaLocation = FVector::DotProduct(GetOwner()->GetActorForwardVector(), Velocity) * DeltaTime;
-	float RotationAngle = DeltaLocation / MinTurningRadius * InRollThrow;
+	
+	float RotationForce = MaxRollForce * DeltaTime * InRollThrow;
 
-	FQuat RotationDelta(GetOwner()->GetActorForwardVector(), RotationAngle);
+	if (RotationForce < 0)
+	{
+		RotationForce -= GetFloatRollingResistance();
+	}
+	else
+	{
+		RotationForce += GetFloatRollingResistance();
+	}
+	
+
+	float RotationAcceleration = RotationForce / Mass;
+
+	RollVelocity += RotationAcceleration * DeltaTime;
+
+	RollVelocity = RollVelocity > MaxRollVelocity ? MaxRollVelocity : RollVelocity;
+
+	FQuat RotationDelta(GetOwner()->GetActorForwardVector(), FMath::DegreesToRadians(RollVelocity));
 
 	Velocity = RotationDelta.RotateVector(Velocity);
 
@@ -96,7 +115,7 @@ void USpaceMovementComponent::ApplyRollRotation(float DeltaTime, float InRollThr
 
 	if (Hit.IsValidBlockingHit())
 	{
-		GetOwner()->AddActorWorldRotation(RotationDelta * -1);
+		GetOwner()->AddActorWorldRotation(RotationDelta.Inverse());
 	}
 }
 
@@ -140,6 +159,11 @@ FVector USpaceMovementComponent::GetAirResistance()
 	return -Velocity.GetSafeNormal() * Velocity.SizeSquared() * DragCoefficient;
 }
 
+float USpaceMovementComponent::GetRotationDrag(float RotationVelocity)
+{
+	return -FMath::Square(RotationVelocity) * RotationDragCoefficient;
+}
+
 FVector USpaceMovementComponent::GetRollingResistance()
 {
 	float AccelerationDueToGravity = -GetWorld()->GetGravityZ() / 100;
@@ -147,4 +171,15 @@ FVector USpaceMovementComponent::GetRollingResistance()
 	float NormalForce = Mass * AccelerationDueToGravity;
 
 	return -Velocity.GetSafeNormal() * RollingResistanceCoefficient * NormalForce;
+}
+
+float USpaceMovementComponent::GetFloatRollingResistance()
+{
+	float AccelerationDueToGravity = -GetWorld()->GetGravityZ() / 100; //TODO: change this to a parameter and this function should be called get brake thrusters or somenthing like that
+
+	float NormalForce = Mass * AccelerationDueToGravity;
+
+	UE_LOG(LogTemp, Warning, TEXT("%d"), -RollingResistanceCoefficient * NormalForce);
+
+	return -RollingResistanceCoefficient * NormalForce;
 }
