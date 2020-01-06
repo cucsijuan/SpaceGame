@@ -42,6 +42,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetVelocity(FVector InVelocity) { Velocity = InVelocity; }
+	UFUNCTION(BlueprintCallable)
 	FVector GetVelocity() { return Velocity; }
 
 	UFUNCTION(BlueprintCallable)
@@ -82,13 +83,41 @@ private:
 	UPROPERTY(EditAnywhere)
 	float MaxDrivingForce = 10000;
 
-	//Force applied to the ship when Roll is fully down (N).
+	//Max Roll acceleration of the ship (Deg/s).
 	UPROPERTY(EditAnywhere)
-	float MaxRollForce = 10000;
+	float MaxRollAcceleration = 2.5f;
 
-	//Force applied to the ship when Roll is fully down (N).
+	//Max Roll Velocity of the ship (Deg/s)
 	UPROPERTY(EditAnywhere)
-	float MaxPitchForce = 10000;
+	float MaxRollVelocity = 5.f;
+
+	//Te force applied to Break Roll when no input is applied (Deg/s)
+	UPROPERTY(EditAnywhere)
+	float RollBrakeForce = 3.f;
+
+	//Max Pitch acceleration of the ship (Deg/s).
+	UPROPERTY(EditAnywhere)
+	float MaxPitchAcceleration = 2.5f;
+
+	//Max Pitch Velocity of the ship (Deg/s)
+	UPROPERTY(EditAnywhere)
+	float MaxPitchVelocity = 5;
+
+	//Te force applied to Break Pitch when no input is applied (Deg/s)
+	UPROPERTY(EditAnywhere)
+	float PitchBrakeForce = 3;
+
+	//Max Pitch acceleration of the ship (Deg/s).
+	UPROPERTY(EditAnywhere)
+	float MaxYawAcceleration = 2.5f;
+
+	//Max Yaw Velocity of the ship (Deg/s)
+	UPROPERTY(EditAnywhere)
+	float MaxYawVelocity = 5;
+
+	//Te force applied to Break Yaw when no input is applied (Deg/s)
+	UPROPERTY(EditAnywhere)
+	float YawBrakeForce = 3;
 
 	//Minimum radius of the ship turning at full lock (m).
 	UPROPERTY(EditAnywhere)
@@ -106,10 +135,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	float RollingResistanceCoefficient = 0.015f;
 
-	UPROPERTY(EditAnywhere)
-	float MaxRollVelocity = 90;
-
 	FVector Velocity = FVector::ZeroVector;
+
+	float YawVelocity;
 
 	float RollVelocity;
 
@@ -138,7 +166,7 @@ private:
 
 	void UpdateLocationFromVelocity(float DeltaTime);
 
-	void ApplyRotation(float DeltaTime, float SteeringThrow);
+	void ApplyYawRotation(float DeltaTime, float SteeringThrow);
 	void ApplyPitchRotation(float DeltaTime, float PitchThrow);
 	void ApplyRollRotation(float DeltaTime, float InRollThrow);
 	

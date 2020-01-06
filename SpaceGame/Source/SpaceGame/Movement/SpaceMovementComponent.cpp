@@ -42,12 +42,40 @@ FGoKartMove USpaceMovementComponent::CreateMove(float DeltaTime)
 	return Move;
 }
 
-void USpaceMovementComponent::ApplyRotation(float DeltaTime, float SteeringThrow)
+void USpaceMovementComponent::ApplyYawRotation(float DeltaTime, float SteeringThrow)
 {
-	float DeltaLocation = FVector::DotProduct(GetOwner()->GetActorForwardVector(), Velocity) * DeltaTime;
-	float RotationAngle = DeltaLocation / MinTurningRadius * SteeringThrow;
+	SteeringThrow = FMath::Clamp(SteeringThrow, -1.f, 1.f);
 
-	FQuat RotationDelta(GetOwner()->GetActorUpVector(), RotationAngle);
+	float DeltaDegrees = MaxYawAcceleration * DeltaTime * SteeringThrow;
+
+	if (DeltaDegrees == 0.f && YawVelocity != 0)
+	{
+		float AbsBrakeForce = YawBrakeForce * DeltaTime;
+		YawVelocity += YawVelocity > 0 ? -AbsBrakeForce : AbsBrakeForce;
+
+		if (FMath::IsNearlyZero(YawVelocity, 0.2f))
+		{
+			YawVelocity = 0.f;
+		}
+	}
+	else
+	{
+		YawVelocity += DeltaDegrees;
+
+		if (FMath::Abs(YawVelocity) > MaxYawVelocity)
+		{
+			if (YawVelocity > 0)
+			{
+				YawVelocity = MaxYawVelocity;
+			}
+			else
+			{
+				YawVelocity = -MaxYawVelocity;
+			}
+		}
+	}
+
+	FQuat RotationDelta(GetOwner()->GetActorUpVector(), FMath::DegreesToRadians(YawVelocity));
 
 	Velocity = RotationDelta.RotateVector(Velocity);
 
@@ -63,13 +91,38 @@ void USpaceMovementComponent::ApplyRotation(float DeltaTime, float SteeringThrow
 
 void USpaceMovementComponent::ApplyPitchRotation(float DeltaTime, float PitchThrow)
 {
-	float RotationForce = MaxPitchForce * DeltaTime * PitchThrow;
+	PitchThrow = FMath::Clamp(PitchThrow, -1.f, 1.f);
 
-	float RotationAcceleration = RotationForce / Mass;
+	float DeltaDegrees = MaxPitchAcceleration * DeltaTime * PitchThrow;
 
-	PitchVelocity += RotationAcceleration * DeltaTime;
+	if (DeltaDegrees == 0.f && PitchVelocity != 0)
+	{
+		float AbsBrakeForce = PitchBrakeForce * DeltaTime;
+		PitchVelocity += PitchVelocity > 0 ? -AbsBrakeForce : AbsBrakeForce;
 
-	FQuat RotationDelta(GetOwner()->GetActorRightVector(), PitchVelocity);
+		if (FMath::IsNearlyZero(PitchVelocity, 0.2f))
+		{
+			PitchVelocity = 0.f;
+		}
+	}
+	else
+	{
+		PitchVelocity += DeltaDegrees;
+
+		if (FMath::Abs(PitchVelocity) > MaxPitchVelocity)
+		{
+			if (PitchVelocity > 0)
+			{
+				PitchVelocity = MaxPitchVelocity;
+			}
+			else
+			{
+				PitchVelocity = -MaxPitchVelocity;
+			}
+		}
+	}
+
+	FQuat RotationDelta(GetOwner()->GetActorRightVector(), FMath::DegreesToRadians(PitchVelocity));
 
 	Velocity = RotationDelta.RotateVector(Velocity);
 
@@ -86,25 +139,39 @@ void USpaceMovementComponent::ApplyPitchRotation(float DeltaTime, float PitchThr
 
 void USpaceMovementComponent::ApplyRollRotation(float DeltaTime, float InRollThrow)
 {
+	InRollThrow = FMath::Clamp(InRollThrow, -1.f, 1.f);
 	
-	float RotationForce = MaxRollForce * DeltaTime * InRollThrow;
+	float DeltaDegrees = MaxRollAcceleration * DeltaTime * InRollThrow;
 
-	if (RotationForce < 0)
+	if (DeltaDegrees == 0.f && RollVelocity != 0)
 	{
-		RotationForce -= GetFloatRollingResistance();
+		float AbsBrakeForce = RollBrakeForce * DeltaTime;
+		RollVelocity += RollVelocity > 0 ? -AbsBrakeForce : AbsBrakeForce;
+
+		if (FMath::IsNearlyZero(RollVelocity, 0.2f))
+		{
+			RollVelocity = 0.f;
+		}
 	}
 	else
 	{
-		RotationForce += GetFloatRollingResistance();
+		RollVelocity += DeltaDegrees;
+
+		if (FMath::Abs(RollVelocity) > MaxRollVelocity)
+		{
+			if (RollVelocity > 0)
+			{
+				RollVelocity = MaxRollVelocity;
+			}
+			else
+			{
+				RollVelocity = -MaxRollVelocity;
+			}
+		}
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("RollVel: %f"), RollVelocity);
 	
-
-	float RotationAcceleration = RotationForce / Mass;
-
-	RollVelocity += RotationAcceleration * DeltaTime;
-
-	RollVelocity = RollVelocity > MaxRollVelocity ? MaxRollVelocity : RollVelocity;
-
 	FQuat RotationDelta(GetOwner()->GetActorForwardVector(), FMath::DegreesToRadians(RollVelocity));
 
 	Velocity = RotationDelta.RotateVector(Velocity);
@@ -145,7 +212,7 @@ void USpaceMovementComponent::SimulateMove(const FGoKartMove& Move)
 
 	Velocity += Acceleration * Move.DeltaTime;
 
-	ApplyRotation(Move.DeltaTime, Move.SteeringThrow);
+	ApplyYawRotation(Move.DeltaTime, Move.SteeringThrow);
 
 	ApplyPitchRotation(Move.DeltaTime, Move.PitchThrow);
 
