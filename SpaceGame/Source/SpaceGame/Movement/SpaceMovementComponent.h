@@ -83,6 +83,18 @@ private:
 	UPROPERTY(EditAnywhere)
 	float MaxDrivingForce = 10000;
 
+	//Max Forward Speed (M/s).
+	UPROPERTY(EditAnywhere)
+	float MaxDriveSpeed = 140.f;
+
+	//Max Forward Speed (M/s).
+	UPROPERTY(EditAnywhere)
+	float MaxDriveAcceleration = 100.f;
+
+	//Max Forward Speed (M/s).
+	UPROPERTY(EditAnywhere)
+	float DriveBreakForce = 60.f;
+
 	//Max Roll acceleration of the ship (Deg/s).
 	UPROPERTY(EditAnywhere)
 	float MaxRollAcceleration = 2.5f;

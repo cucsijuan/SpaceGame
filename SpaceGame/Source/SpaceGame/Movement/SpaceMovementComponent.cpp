@@ -202,15 +202,37 @@ void USpaceMovementComponent::UpdateLocationFromVelocity(float DeltaTime)
 
 void USpaceMovementComponent::SimulateMove(const FGoKartMove& Move)
 {
-	FVector Force = MaxDrivingForce * Move.Throttle * GetOwner()->GetActorForwardVector();
+	FVector Acceleration = MaxDriveAcceleration * Move.Throttle * GetOwner()->GetActorForwardVector();
 
-	Force += GetAirResistance();
+	if (Acceleration.IsNearlyZero() && !Velocity.IsNearlyZero())
+	{
+		float AbsBrakeForce = DriveBreakForce * Move.DeltaTime;
+		
+		Velocity += (Velocity.GetSafeNormal() - GetOwner()->GetActorForwardVector()).IsNearlyZero(0.1) ? -GetOwner()->GetActorForwardVector() * AbsBrakeForce : GetOwner()->GetActorForwardVector() * AbsBrakeForce;
 
-	Force += GetRollingResistance();
+		if (Velocity.IsNearlyZero(0.2f))
+		{
+			Velocity = FVector::ZeroVector;
+		}
+	}
+	else
+	{
+		Velocity += Acceleration * Move.DeltaTime;
 
-	FVector Acceleration = Force / Mass;
+		if (Velocity.Size() > MaxDriveSpeed)
+		{
+			FVector VelDirection = Velocity.GetSafeNormal() - GetOwner()->GetActorForwardVector();
 
-	Velocity += Acceleration * Move.DeltaTime;
+			if (VelDirection.IsNearlyZero(0.1f))
+			{
+				Velocity = MaxDriveSpeed * GetOwner()->GetActorForwardVector();
+			}
+			else
+			{
+				Velocity = MaxDriveSpeed * -GetOwner()->GetActorForwardVector();
+			}
+		}
+	}
 
 	ApplyYawRotation(Move.DeltaTime, Move.SteeringThrow);
 
