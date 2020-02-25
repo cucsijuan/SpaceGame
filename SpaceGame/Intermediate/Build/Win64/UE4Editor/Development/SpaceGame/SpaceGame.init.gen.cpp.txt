@@ -1,3 +1,0 @@
-C:\Users\NGD_8700_05\Documents\Unreal Projects\SpaceGame\Intermediate\Build\Win64\UE4Editor\Development\SpaceGame\Definitions.SpaceGame.h
-D:\Epic\UE_4.22\Engine\Source\Runtime\CoreUObject\Public\UObject/GeneratedCppIncludes.h
-D:\Epic\UE_4.22\Engine\Source\Runtime\CoreUObject\Public\UObject/MetaData.h
