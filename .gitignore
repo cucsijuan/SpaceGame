@@ -76,3 +76,6 @@ SpaceGame/Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 SpaceGame/DerivedDataCache/*
+
+SpaceGame/Content/StarterContent/
+SpaceGame/Intermediate/
