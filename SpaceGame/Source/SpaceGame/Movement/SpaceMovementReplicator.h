@@ -8,7 +8,7 @@
 #include "SpaceMovementReplicator.generated.h"
 
 USTRUCT()
-struct FGoKartState
+struct FSpaceGameState
 {
 	GENERATED_BODY()
 
@@ -17,7 +17,7 @@ struct FGoKartState
 	UPROPERTY()
 	FVector Velocity = FVector::ZeroVector;
 	UPROPERTY()
-	FGoKartMove LastMove;
+	FSpaceGameMove LastMove;
 };
 
 struct FHermiteCubicSpline
@@ -58,9 +58,9 @@ private:
 	USpaceMovementComponent* MovementComponent;
 
 	UPROPERTY(ReplicatedUsing = OnRep_ServerState)
-	FGoKartState ServerState;
+	FSpaceGameState ServerState;
 
-	TArray<FGoKartMove> UnacknowloegedMoves;
+	TArray<FSpaceGameMove> UnacknowloegedMoves;
 
 	float ClientTimesinceUpdate;
 
@@ -84,7 +84,7 @@ private:
 	void SetMeshOffsetRoot(USceneComponent* Root) { MeshOffetRoot = Root; }
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_SendMove(FGoKartMove Move);
+	void Server_SendMove(FSpaceGameMove Move);
 
 	UFUNCTION()
 	void OnRep_ServerState();
@@ -95,9 +95,9 @@ private:
 	UFUNCTION()
 	void AutonomousProxy_OnRep_ServerState();
 
-	void ClearAcknowledgedMoves(FGoKartMove LastMove);
+	void ClearAcknowledgedMoves(FSpaceGameMove LastMove);
 		
-	void UpdateServerState(const FGoKartMove& Move);
+	void UpdateServerState(const FSpaceGameMove& Move);
 
 	FHermiteCubicSpline CreateSpline();
 

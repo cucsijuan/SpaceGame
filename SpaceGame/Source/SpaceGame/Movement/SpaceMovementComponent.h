@@ -7,7 +7,7 @@
 #include "SpaceMovementComponent.generated.h"
 
 USTRUCT()
-struct FGoKartMove
+struct FSpaceGameMove
 {
 	GENERATED_BODY()
 
@@ -63,12 +63,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetRollThrow() { return RollThrow; }
 
-	FGoKartMove GetLastMove() { return LastMove; }
+	FSpaceGameMove GetLastMove() { return LastMove; }
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void SimulateMove(const FGoKartMove& Move);
+	void SimulateMove(const FSpaceGameMove& Move);
 
 protected:
 	// Called when the game starts
@@ -155,7 +155,7 @@ private:
 
 	float PitchVelocity;
 
-	FGoKartMove LastMove;
+	FSpaceGameMove LastMove;
 
 	UPROPERTY()
 	float Throttle;
@@ -166,7 +166,7 @@ private:
 
 	float RollThrow;
 
-	FGoKartMove CreateMove(float DeltaTime);
+	FSpaceGameMove CreateMove(float DeltaTime);
 
 	FVector GetAirResistance();
 

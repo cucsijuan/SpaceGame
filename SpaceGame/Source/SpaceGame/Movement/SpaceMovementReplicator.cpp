@@ -27,7 +27,7 @@ void USpaceMovementReplicator::TickComponent(float DeltaTime, ELevelTick TickTyp
 
 	if (MovementComponent == nullptr) return;
 
-	FGoKartMove LastMove = MovementComponent->GetLastMove();
+	FSpaceGameMove LastMove = MovementComponent->GetLastMove();
 
 	if (GetOwnerRole() == ROLE_AutonomousProxy)
 	{
@@ -48,11 +48,11 @@ void USpaceMovementReplicator::TickComponent(float DeltaTime, ELevelTick TickTyp
 
 }
 
-void USpaceMovementReplicator::ClearAcknowledgedMoves(FGoKartMove LastMove)
+void USpaceMovementReplicator::ClearAcknowledgedMoves(FSpaceGameMove LastMove)
 {
-	TArray<FGoKartMove> NewMoves;
+	TArray<FSpaceGameMove> NewMoves;
 
-	for (const FGoKartMove& Move : UnacknowloegedMoves)
+	for (const FSpaceGameMove& Move : UnacknowloegedMoves)
 	{
 		if (Move.Time > LastMove.Time)
 		{
@@ -63,7 +63,7 @@ void USpaceMovementReplicator::ClearAcknowledgedMoves(FGoKartMove LastMove)
 	UnacknowloegedMoves = NewMoves;
 }
 
-void USpaceMovementReplicator::UpdateServerState(const FGoKartMove& Move)
+void USpaceMovementReplicator::UpdateServerState(const FSpaceGameMove& Move)
 {
 	ServerState.LastMove = Move;
 	ServerState.Transform = GetOwner()->GetActorTransform();
@@ -181,13 +181,13 @@ void USpaceMovementReplicator::AutonomousProxy_OnRep_ServerState()
 
 	ClearAcknowledgedMoves(ServerState.LastMove);
 
-	for (const FGoKartMove& Move : UnacknowloegedMoves)
+	for (const FSpaceGameMove& Move : UnacknowloegedMoves)
 	{
 		MovementComponent->SimulateMove(Move);
 	}
 }
 
-void USpaceMovementReplicator::Server_SendMove_Implementation(FGoKartMove Move)
+void USpaceMovementReplicator::Server_SendMove_Implementation(FSpaceGameMove Move)
 {
 	if (MovementComponent == nullptr) return;
 
@@ -197,7 +197,7 @@ void USpaceMovementReplicator::Server_SendMove_Implementation(FGoKartMove Move)
 	UpdateServerState(Move);
 }
 
-bool USpaceMovementReplicator::Server_SendMove_Validate(FGoKartMove Move)
+bool USpaceMovementReplicator::Server_SendMove_Validate(FSpaceGameMove Move)
 {
 	float ProposedTime = CLientSimulatedTime + Move.DeltaTime;
 

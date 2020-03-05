@@ -30,9 +30,9 @@ void USpaceMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	}
 }
 
-FGoKartMove USpaceMovementComponent::CreateMove(float DeltaTime)
+FSpaceGameMove USpaceMovementComponent::CreateMove(float DeltaTime)
 {
-	FGoKartMove Move;
+	FSpaceGameMove Move;
 	Move.DeltaTime = DeltaTime;
 	Move.SteeringThrow = SteeringThrow;
 	Move.PitchThrow = PitchThrow;
@@ -200,7 +200,7 @@ void USpaceMovementComponent::UpdateLocationFromVelocity(float DeltaTime)
 	}
 }
 
-void USpaceMovementComponent::SimulateMove(const FGoKartMove& Move)
+void USpaceMovementComponent::SimulateMove(const FSpaceGameMove& Move)
 {
 	FVector Acceleration = MaxDriveAcceleration * Move.Throttle * GetOwner()->GetActorForwardVector();
 
